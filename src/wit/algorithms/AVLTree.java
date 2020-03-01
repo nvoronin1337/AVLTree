@@ -44,9 +44,7 @@ public class AVLTree < T extends Comparable <? super T>> {
 
     public boolean contains (T entry) {
         // implements AVLSearch algorithm
-
-        return true;
-
+        return false;
     }
 
     private enum LeftRight {
@@ -68,9 +66,30 @@ public class AVLTree < T extends Comparable <? super T>> {
         return delete (node);
     }
 
-    public void insert (T entry ) {
+    public void insert (T entry) {
         AVLNode toAdd = new AVLNode (entry);
-        // implement TreeInsert
+        // Implement Tree Insert
+        AVLNode y = null;
+        AVLNode x = root;
+
+        while(x != null){
+            y = x;
+            if(entry.compareTo(x.getData()) < 0){
+                x = x.getLeft();
+            }else{
+                x = x.getRight();
+            }
+        }
+        toAdd.setParent(y);
+        if(y == null){
+            root = toAdd;
+        }else if(entry.compareTo(y.getData()) < 0){
+            y.setLeft(toAdd);
+        }else{
+            y.setRight(toAdd);
+        }
+
+        /**
         AVLNode r = updateHeights (toAdd);
 
         if (r != null) {
@@ -96,21 +115,42 @@ public class AVLTree < T extends Comparable <? super T>> {
                     throw new IllegalStateException ();
             }
         }
+         */
     }
 
+    // A utility function to get maximum of two integers
+    int max(int a, int b) {
+        return (a > b) ? a : b;
+    }
 
     private LeftRight getRotation (AVLNode node, AVLNode nail) {
-        // to implement
+        int balance =  node.getLeftHeight() - node.getRightHeight();
+
         return null;  // should be fixed
     }
 
     private AVLNode updateHeights (AVLNode node) {
         // to implement
+        AVLNode x = node.getLeft();
+        AVLNode T2 = x.getRight();
+
+        x.setRight(node);
+        node.setLeft(T2);
+
+        node.resetHeights();
+
+
         return null;  // should be fixed
     }
 
     private void llRotate (AVLNode r) {
         // to implement
+        AVLNode right = r.getRight();
+        AVLNode leftChild = right.getLeft();
+
+        // Rotate
+        right.setLeft(r);
+        r.setRight(leftChild);
     }
     private void rrRotate (AVLNode r) {
         // to implement
