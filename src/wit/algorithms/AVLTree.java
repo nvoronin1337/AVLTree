@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+import java.lang.Math;
 
 public class AVLTree < T extends Comparable <? super T>> {
 
@@ -68,28 +69,30 @@ public class AVLTree < T extends Comparable <? super T>> {
 
     public void insert (T entry) {
         AVLNode toAdd = new AVLNode (entry);
-        // Implement Tree Insert
-        AVLNode y = null;
-        AVLNode x = root;
 
-        while(x != null){
-            y = x;
-            if(entry.compareTo(x.getData()) < 0){
-                x = x.getLeft();
+        // Implement Tree Insert
+        AVLNode parent = null;
+        AVLNode current = root;
+
+        while(current != null){
+            parent = current;
+            if(entry.compareTo(current.getData()) < 0){
+                current = current.getLeft();
             }else{
-                x = x.getRight();
+                current = current.getRight();
             }
         }
-        toAdd.setParent(y);
-        if(y == null){
+
+        toAdd.setParent(parent);
+        if(parent == null){
             root = toAdd;
-        }else if(entry.compareTo(y.getData()) < 0){
-            y.setLeft(toAdd);
+            return;
+        }else if(entry.compareTo(parent.getData()) < 0){
+            parent.setLeft(toAdd);
         }else{
-            y.setRight(toAdd);
+            parent.setRight(toAdd);
         }
 
-        /**
         AVLNode r = updateHeights (toAdd);
 
         if (r != null) {
@@ -115,32 +118,48 @@ public class AVLTree < T extends Comparable <? super T>> {
                     throw new IllegalStateException ();
             }
         }
-         */
-    }
 
-    // A utility function to get maximum of two integers
-    int max(int a, int b) {
-        return (a > b) ? a : b;
     }
 
     private LeftRight getRotation (AVLNode node, AVLNode nail) {
         int balance =  node.getLeftHeight() - node.getRightHeight();
-
-        return null;  // should be fixed
+        if(balance > 1 && node.getData().compareTo(nail.getLeft().getData()) < 0){
+            return LeftRight.RR;
+        }
+        if(balance < -1 && node.getData().compareTo(nail.getRight().getData()) > 0){
+            return LeftRight.LL;
+        }
+        if(balance > 1 && node.getData().compareTo(nail.getLeft().getData()) > 0){
+            return LeftRight.LR;
+        }
+        if(balance < -1 && node.getData().compareTo(nail.getRight().getData()) < 0){
+            return LeftRight.RL;
+        }
+        return null;
     }
 
     private AVLNode updateHeights (AVLNode node) {
-        // to implement
-        AVLNode x = node.getLeft();
-        AVLNode T2 = x.getRight();
+        AVLNode parent = node.getParent();
 
-        x.setRight(node);
-        node.setLeft(T2);
+        while(parent != null){
+            if(parent.getLeft() != null && node.getData().equals(parent.getLeft().getData())){
+                // node is the left child
+                parent.setLeftHeight(parent.getLeftHeight() + 1);
+            }else{
+                // node is the right child
+                parent.setRightHeight(parent.getRightHeight() + 1);
+            }
 
-        node.resetHeights();
+            parent.resetHeights();
 
-
-        return null;  // should be fixed
+            if(parent.getHeight() == Math.max(parent.getLeftHeight(), parent.getRightHeight())){
+                break;
+            }
+            node = parent;
+            parent = parent.getParent();
+        }
+        
+        return parent;  // should be fixed
     }
 
     private void llRotate (AVLNode r) {
