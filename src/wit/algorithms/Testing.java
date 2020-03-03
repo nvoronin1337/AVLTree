@@ -31,6 +31,13 @@ public class Testing {
             System.out.print(level.next() + " ");
         System.out.println();
 
+        // my code
+        boolean containsBen = nameTree.contains("Ben");
+        System.out.println("Contains \"Ben\"? " + containsBen);
+
+        boolean containsNikita = nameTree.contains("Nikita");
+        System.out.println("Contains \"Nikita\"? " + containsNikita);
+        // my code end
 
         Integer [] numbers = {5, 6, 8, 3, 2, 4, 7};
         AVLTree <Integer> numTree = new AVLTree <>();

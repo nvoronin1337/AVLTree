@@ -43,9 +43,26 @@ public class AVLTree < T extends Comparable <? super T>> {
         root = null;
     }
 
+    // Note: seems to work but needs more testing
     public boolean contains (T entry) {
         // implements AVLSearch algorithm
-        return false;
+        if(root == null){
+            return false;
+        }
+        // Iterative solution
+        AVLNode current = root;
+        while(current.getData().compareTo(entry) != 0){
+            if(current.getData().compareTo(entry) > 0){
+                current = current.getLeft();
+            }else{
+                current = current.getRight();
+            }
+
+            if(current == null){
+                return false;
+            }
+        }
+        return true;
     }
 
     private enum LeftRight {
@@ -67,12 +84,18 @@ public class AVLTree < T extends Comparable <? super T>> {
         return delete (node);
     }
 
+    // TODO deal with duplicates (now they are always inserted in right subtree)
     public void insert (T entry) {
         AVLNode toAdd = new AVLNode (entry);
 
         // Implement Tree Insert
-        AVLNode parent = null;
+        if(root == null) {
+            root = toAdd;
+            return;
+        }
+
         AVLNode current = root;
+        AVLNode parent = null;
 
         while(current != null){
             parent = current;
@@ -84,15 +107,13 @@ public class AVLTree < T extends Comparable <? super T>> {
         }
 
         toAdd.setParent(parent);
-        if(parent == null){
-            root = toAdd;
-            return;
-        }else if(entry.compareTo(parent.getData()) < 0){
+        if(entry.compareTo(parent.getData()) < 0){
             parent.setLeft(toAdd);
         }else{
             parent.setRight(toAdd);
         }
 
+        // AVL balancing and rotating
         AVLNode r = updateHeights (toAdd);
 
         if (r != null) {
@@ -103,15 +124,19 @@ public class AVLTree < T extends Comparable <? super T>> {
 
             switch (rotation) {
                 case LL:
+                    System.out.println("LL Rotate");
                     llRotate (r);
                     break;
                 case LR:
+                    System.out.println("LR Rotate");
                     lrRotate (r);
                     break;
                 case RL:
+                    System.out.println("RL Rotate");
                     rlRotate (r);
                     break;
                 case RR:
+                    System.out.println("RR Rotate");
                     rrRotate (r);
                     break;
                 default:
@@ -121,23 +146,22 @@ public class AVLTree < T extends Comparable <? super T>> {
 
     }
 
+    // TODO test
     private LeftRight getRotation (AVLNode node, AVLNode nail) {
         int balance =  node.getLeftHeight() - node.getRightHeight();
         if(balance > 1 && node.getData().compareTo(nail.getLeft().getData()) < 0){
             return LeftRight.RR;
         }
-        if(balance < -1 && node.getData().compareTo(nail.getRight().getData()) > 0){
+        else if(balance < -1 && node.getData().compareTo(nail.getRight().getData()) > 0){
             return LeftRight.LL;
         }
-        if(balance > 1 && node.getData().compareTo(nail.getLeft().getData()) > 0){
+        else if(balance > 1 && node.getData().compareTo(nail.getLeft().getData()) > 0){
             return LeftRight.LR;
         }
-        if(balance < -1 && node.getData().compareTo(nail.getRight().getData()) < 0){
-            return LeftRight.RL;
-        }
-        return null;
+        else return LeftRight.RL;
     }
 
+    // TODO fix
     private AVLNode updateHeights (AVLNode node) {
         AVLNode parent = node.getParent();
 
@@ -150,11 +174,14 @@ public class AVLTree < T extends Comparable <? super T>> {
                 parent.setRightHeight(parent.getRightHeight() + 1);
             }
 
+
             parent.resetHeights();
 
+            // Note: next line is never true
             if(parent.getHeight() == Math.max(parent.getLeftHeight(), parent.getRightHeight())){
                 break;
             }
+
             node = parent;
             parent = parent.getParent();
         }
@@ -163,6 +190,7 @@ public class AVLTree < T extends Comparable <? super T>> {
     }
 
     private void llRotate (AVLNode r) {
+        /*
         // to implement
         AVLNode right = r.getRight();
         AVLNode leftChild = right.getLeft();
@@ -170,6 +198,7 @@ public class AVLTree < T extends Comparable <? super T>> {
         // Rotate
         right.setLeft(r);
         r.setRight(leftChild);
+         */
     }
     private void rrRotate (AVLNode r) {
         // to implement
@@ -328,6 +357,7 @@ public class AVLTree < T extends Comparable <? super T>> {
 
     }
 
+    // Left Root Right
     private class InOrderIterator implements Iterator <T> {
 
         private Stack <AVLNode> stack;
