@@ -144,15 +144,28 @@ public class AVLTree < T extends Comparable <? super T>> {
                     throw new IllegalStateException ();
             }
         }
-
     }
 
-    // TODO test
+    // TODO check correctness
     private LeftRight getRotation (AVLNode node, AVLNode nail) {
-        return null;
+        T entry = node.getData();
+        if(entry.compareTo(nail.getData()) < 0){
+            if(entry.compareTo(nail.getLeft().getData()) < 0){
+                return LeftRight.RR;
+            }else{
+                return LeftRight.LR;
+            }
+        }
+        else{
+            if(entry.compareTo(nail.getRight().getData()) < 0){
+                return LeftRight.RL;
+            }else{
+                return LeftRight.LL;
+            }
+        }
     }
 
-    // TODO fix
+    // TODO check correctness
     private AVLNode updateHeights (AVLNode node) {
         AVLNode parent = node.getParent();
         AVLNode rotationPoint = null;
@@ -160,15 +173,13 @@ public class AVLTree < T extends Comparable <? super T>> {
 
         while(parent != null && parent.getHeight() != oldHeight){
             oldHeight = parent.getHeight();
-            parent.resetHeights();
+            parent.resetHeights(); // Is ok??
 
             if(node.isLeftChild()){
                 int rightHeight = parent.getRightHeight();
-                //parent.setLeftHeight(node.getHeight());
                 parent.height = Math.max(node.getHeight() + 1, rightHeight);
             }else if(node.isRightChild()){
                 int leftHeight = parent.getLeftHeight();
-                //parent.setRightHeight(node.getHeight());
                 parent.height = Math.max(node.getHeight() + 1, leftHeight);
             }else{
                 throw new IllegalStateException();
@@ -184,7 +195,7 @@ public class AVLTree < T extends Comparable <? super T>> {
             if(parent == null){
                 break;
             }
-            parent.resetHeights();
+            parent.resetHeights(); // Is ok??
             int balance = parent.getLeftHeight() - parent.getRightHeight();
             if(balance == 2 || balance == -2){
                 rotationPoint = parent;
@@ -192,20 +203,11 @@ public class AVLTree < T extends Comparable <? super T>> {
                 throw new IllegalStateException();
             }
         }
-
         return rotationPoint;
     }
 
     private void llRotate (AVLNode r) {
-        /*
         // to implement
-        AVLNode right = r.getRight();
-        AVLNode leftChild = right.getLeft();
-
-        // Rotate
-        right.setLeft(r);
-        r.setRight(leftChild);
-         */
     }
     private void rrRotate (AVLNode r) {
         // to implement
