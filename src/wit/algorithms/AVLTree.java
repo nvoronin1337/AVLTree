@@ -6,7 +6,6 @@ import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import java.lang.Math;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class AVLTree < T extends Comparable <? super T>> {
 
@@ -44,13 +43,11 @@ public class AVLTree < T extends Comparable <? super T>> {
         root = null;
     }
 
-    // Note: seems to work but needs more testing
     public boolean contains (T entry) {
-        // implements AVLSearch algorithm
         if(root == null){
             return false;
         }
-        // Iterative solution
+
         AVLNode current = root;
         while(current.getData().compareTo(entry) != 0){
             if(current.getData().compareTo(entry) > 0){
@@ -85,11 +82,9 @@ public class AVLTree < T extends Comparable <? super T>> {
         return delete (node);
     }
 
-    // TODO deal with duplicates (now they are always inserted in right subtree)
     public void insert (T entry) {
         AVLNode toAdd = new AVLNode (entry);
 
-        // Implement Tree Insert
         if(root == null) {
             root = toAdd;
             return;
@@ -146,7 +141,6 @@ public class AVLTree < T extends Comparable <? super T>> {
         }
     }
 
-    // TODO check correctness
     private LeftRight getRotation (AVLNode node, AVLNode nail) {
         T entry = node.getData();
         if(entry.compareTo(nail.getData()) < 0){
@@ -176,7 +170,7 @@ public class AVLTree < T extends Comparable <? super T>> {
             if(node.isLeftChild()){
                 int rightHeight = parent.getRightHeight();
                 parent.height = Math.max(node.getHeight() + 1, rightHeight);
-            }else if(node.isRightChild()){
+            }else{
                 int leftHeight = parent.getLeftHeight();
                 parent.height = Math.max(node.getHeight() + 1, leftHeight);
             }
@@ -191,6 +185,7 @@ public class AVLTree < T extends Comparable <? super T>> {
             if(parent == null){
                 break;
             }
+            parent.resetHeights();
 
             int balance = parent.getLeftHeight() - parent.getRightHeight();
             if((balance == 2 || balance == -2) && rotationPoint == null){
@@ -204,36 +199,60 @@ public class AVLTree < T extends Comparable <? super T>> {
 
 
     private void llRotate (AVLNode r) {
-        /*
-        AVLNode y = r.getRight();
-        AVLNode T2 = y.getLeft();
+        AVLNode parent = r.getParent();
+        AVLNode child = r.getRight();
 
-        y.setLeft(r);
-        r.setRight(T2);
+        if(parent == null){
+            setRoot(child);
+        }else if(r.isLeftChild()){
+            parent.setLeft(r);
+        }else{
+            parent.setRight(child);
+        }
+
+        child.setParent(parent);
+        r.setRight(child.getLeft());
+        child.setLeft(r);
+        r.setParent(child);
 
         r.resetHeights();
-        y.resetHeights();
-        */
+        child.resetHeights();
 
+        // shows warning that child.parent may be null
+        if(child.getParent() != null){
+            child.getParent().resetHeights();
+            updateHeights(child.getParent());
+        }
     }
 
+    // TODO fix
     private void rrRotate (AVLNode r) {
-        /*
-        AVLNode x = r.left;
-        AVLNode T2 = x.right;
+        AVLNode parent = r.getParent();
+        AVLNode child = r.getLeft();
 
-        // Perform rotation
-        x.setRight(r);
-        r.setLeft(T2);
+        if(parent == null){
+            setRoot(child);
+        }else if(r.isLeftChild()){
+            parent.setLeft(r);
+        }else{
+            parent.setRight(child);
+        }
+
+        child.setParent(parent);
+        r.setRight(child.getLeft());
+        child.setLeft(r);
+        r.setParent(child);
 
         r.resetHeights();
-        x.resetHeights();
-         */
+        child.resetHeights();
+        if(child.getParent() != null){
+            child.getParent().resetHeights();
+            updateHeights(child.getParent());
+        }
     }
 
     private void lrRotate (AVLNode r) {
-        //llRotate(r);
-        //rrRotate(r);
+
     }
 
     private void rlRotate (AVLNode r) {
@@ -323,15 +342,19 @@ public class AVLTree < T extends Comparable <? super T>> {
         }
 
         protected void resetHeights() {
-            leftHeight = (left == null ? 0 : left.getHeight());
-            rightHeight = (right == null) ? 0 : right.getHeight();
+            leftHeight = (left == null ? 0 : left.getRealHeight());
+            rightHeight = (right == null) ? 0 : right.getRealHeight();
             computeHeight ();
         }
 
-        // TODO
         protected int getNumberOfNodes () {
-            // to implement
-            return 0; // should be fixed
+            int count = 1;
+            if(root.getLeft() != null){
+                count += root.getLeft().getNumberOfNodes();
+            }else{
+                count += root.getRight().getNumberOfNodes();
+            }
+            return count;
         }
 
         // TODO
@@ -341,7 +364,6 @@ public class AVLTree < T extends Comparable <? super T>> {
         }
 
         protected int getRealHeight () {
-            // to implement as recursive method
             int leftHeight = 0, rightHeight = 0;
             if(getRight() != null){
                 rightHeight = getRight().getHeight();
